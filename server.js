@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
 
-const API_KEY = '16ec9641eb3b05977ffff64ecec57402';
+const API_KEY = 'd516d5d1f77c1b2ea7a025bbfea03634';
 const API_URL = 'https://smmpanelone.com/api/v2';
 
 app.post('/create-order', async (req, res) => {
