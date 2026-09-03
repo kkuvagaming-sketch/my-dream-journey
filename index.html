@@ -10,12 +10,22 @@
         select, input, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
         button { background: #28a745; color: white; font-size: 16px; border: none; cursor: pointer; }
         button:hover { background: #218838; }
+        .google-btn { background: #db4437; display: flex; align-items: center; justify-content: center; text-decoration: none; color: white; font-weight: bold; border-radius: 5px; padding: 10px; margin-top: 15px; }
+        .google-btn:hover { background: #c33d2e; }
     </style>
 </head>
 <body>
 
     <div class="form-container">
         <h2>SMM Panel Order</h2>
+
+        <!-- Google Login Button -->
+        <a href="/auth/google" class="google-btn">
+            🔍 Google से लॉगिन करें
+        </a>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
         <form id="orderForm">
             <label for="service">सेवा चुनें (Select Service):</label>
             <select id="service" required>
