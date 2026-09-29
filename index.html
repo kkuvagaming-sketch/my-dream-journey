@@ -30,39 +30,85 @@
         .game-container {
             width: 100%;
             max-width: 600px;
-            height: 220px;
-            background: #222;
-            border-bottom: 4px solid #fff;
+            height: 240px;
+            background: linear-gradient(to bottom, #4a90e2, #b0e0e6); /* सुबह का सुंदर नीला आसमान */
+            border-bottom: 5px solid #2e7d32; /* ज़मीन का हरा हिस्सा */
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             cursor: pointer;
         }
 
+        /* उगता हुआ सूरज */
+        .sun {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 40px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        /* पीछे के पहाड़ */
+        .mountains {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            font-size: 35px;
+            letter-spacing: 20px;
+            color: #557a95;
+            white-space: nowrap;
+        }
+
+        /* उड़ते हुए पक्षी */
+        #bird {
+            position: absolute;
+            top: 30px;
+            left: 600px;
+            font-size: 20px;
+            animation: flyBird 8s linear infinite;
+        }
+
+        @keyframes flyBird {
+            0% { left: 600px; }
+            100% { left: -50px; }
+        }
+
         #dino {
             position: absolute;
-            bottom: 0;
+            bottom: 5px;
             left: 40px;
             font-size: 40px;
             line-height: 40px;
             transform: scaleX(-1); /* डायनासोर को सीधी दिशा में करने के लिए */
+            z-index: 5;
         }
 
         #obstacle {
             position: absolute;
-            bottom: 0;
+            bottom: 5px;
             left: 600px;
             font-size: 35px;
             line-height: 35px;
+            z-index: 5;
         }
 
         .score-board {
             position: absolute;
             top: 10px;
-            right: 15px;
+            left: 15px;
             font-size: 16px;
             font-weight: bold;
-            color: #00ffcc;
+            color: #fff;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 10px;
+            border-radius: 5px;
+            z-index: 10;
         }
 
         #gameOverText {
@@ -70,15 +116,16 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #ff4757;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 20px;
+            background: rgba(0,0,0,0.85);
+            padding: 12px 20px;
             border-radius: 8px;
             display: none;
-            z-index: 10;
+            z-index: 20;
             text-align: center;
+            border: 1px solid #ff4757;
         }
 
         .instructions {
@@ -95,10 +142,13 @@
     <div class="welcome-msg">नमस्ते! 🙏 वेबसाइट पर आपका स्वागत है, तब तक यह गेम खेलें!</div>
 
     <div class="game-container" id="gameArea">
+        <div class="sun">☀️</div>
+        <div class="mountains">⛰️ ⛰️️ ⛰️ ⛰️ ⛰️ ⛰️</div>
+        <div id="bird">🕊️</div>
         <div class="score-board">स्कोर: <span id="score">0</span></div>
         <div id="dino">🦖</div>
         <div id="obstacle">🌵</div>
-        <div id="gameOverText">गेम ओवर!<br><span style="font-size: 14px; color: #fff;">पुनः खेलने के लिए टैप करें</span></div>
+        <div id="gameOverText">गेम ओवर!<br><span style="font-size: 13px; color: #fff;">पुनः खेलने के लिए टैप करें</span></div>
     </div>
 
     <div class="instructions">स्क्रीन पर कहीं भी टैप करें (कूदने के लिए)!</div>
@@ -129,7 +179,7 @@
             
             let jumpHeight = 0;
             let upInterval = setInterval(() => {
-                if (jumpHeight >= 100) {
+                if (jumpHeight >= 110) {
                     clearInterval(upInterval);
                     let downInterval = setInterval(() => {
                         if (jumpHeight <= 0) {
@@ -137,11 +187,11 @@
                             isJumping = false;
                         }
                         jumpHeight -= 10;
-                        dino.style.bottom = jumpHeight + "px";
+                        dino.style.bottom = (jumpHeight + 5) + "px";
                     }, 20);
                 }
                 jumpHeight += 10;
-                dino.style.bottom = jumpHeight + "px";
+                dino.style.bottom = (jumpHeight + 5) + "px";
             }, 20);
         }
 
@@ -157,7 +207,7 @@
                 obstacle.style.left = obstaclePos + "px";
 
                 let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
-                if (obstaclePos > 30 && obstaclePos < 70 && dinoBottom <= 30) {
+                if (obstaclePos > 30 && obstaclePos < 70 && dinoBottom <= 35) {
                     isGameOver = true;
                     gameOverText.style.display = "block";
                 }
