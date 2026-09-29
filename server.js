@@ -1,56 +1,73 @@
-const express = require('express');
-const axios = require('axios');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Cheat Code Game - My Dream Journey</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: #fff; text-align: center; padding: 20px; }
+        .game-box { background: #222; max-width: 500px; margin: auto; padding: 25px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,255,0,0.3); }
+        input { width: 80%; padding: 12px; font-size: 18px; border-radius: 5px; border: 1px solid #444; background: #333; color: #fff; text-align: center; margin-bottom: 10px; }
+        button { padding: 12px 20px; font-size: 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #218838; }
+        .spawned-item { font-size: 80px; margin: 20px 0; min-height: 100px; }
+        .cheat-list { text-align: left; background: #1a1a1a; padding: 15px; border-radius: 5px; margin-top: 20px; font-size: 14px; color: #aaa; }
+    </style>
+</head>
+<body>
 
-const app = express();
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '/')));
+    <div class="game-box">
+        <h2>🚗 Cheat Code Vehicle Spawner</h2>
+        <p>चीट कोड डालें और वाहन मंगाएं!</p>
+        
+        <div class="spawned-item" id="vehicleDisplay">🅿️</div>
 
-const API_KEY = 'd516d5d1f77c1b2ea7a025bbfea03634';
-const API_URL = 'https://smmpanelone.com/api/v2';
+        <input type="text" id="cheatInput" placeholder="यहाँ चीट कोड लिखें (जैसे: 1111)">
+        <br>
+        <button onclick="spawnVehicle()">वाहन मंगाएं</button>
 
-// Google Auth Route (Temporary redirect or handler)
-app.get('/auth/google', (req, res) => {
-    // यहाँ पर हम Google OAuth का मुख्य लॉगिन URL या रीडायरेक्ट सेट करेंगे
-    const googleClientId = process.env.GOOGLE_CLIENT_ID;
-    
-    if (!googleClientId) {
-        return res.status(500).send("Google Client ID is not configured on Render environment variables.");
-    }
-    
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth/google/callback`;
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=email%20profile`;
-    
-    res.redirect(googleAuthUrl);
-});
+        <p id="message" style="font-weight: bold; margin-top: 15px;"></p>
 
-// Google Auth Callback Route
-app.get('/auth/google/callback', (req, res) => {
-    const { code } = req.query;
-    if (!code) {
-        return res.status(400).send("Google Authentication failed: No code received.");
-    }
-    // सफल लॉगिन के बाद यूज़र को होमपेज पर भेज दें या सफलता संदेश दिखाएं
-    res.send("<h2>गूगल से लॉगिन सफलतापूर्वक हो गया है! (Google Login Successful)</h2><a href='/'>वापस जाएं (Back to Home)</a>");
-});
+        <div class="cheat-list">
+            <strong>मदद (Cheat Codes List):</strong>
+            <ul>
+                <li><strong>1111</strong> - सुपर कार (Super Car)</li>
+                <li><strong>2222</strong> - भारी बाइक (Heavy Bike)</li>
+                <li><strong>3333</strong> - पुलिस कार (Police Car)</li>
+                <li><strong>4444</strong> - हेलीकॉप्टर (Helicopter)</li>
+            </ul>
+        </div>
+    </div>
 
-app.post('/create-order', async (req, res) => {
-    const { service, link, quantity } = req.body;
+    <script>
+        function spawnVehicle() {
+            const code = document.getElementById('cheatInput').value.trim();
+            const display = document.getElementById('vehicleDisplay');
+            const msg = document.getElementById('message');
 
-    try {
-        const response = await axios.post(API_URL, new URLSearchParams({
-            key: API_KEY,
-            action: 'add',
-            service: service,
-            link: link,
-            quantity: quantity
-        }));
+            if (code === '1111') {
+                display.innerText = '🏎️';
+                msg.style.color = '#00ff00';
+                msg.innerText = "सफलता! सुपर कार आ गई है!";
+            } else if (code === '2222') {
+                display.innerText = '🏍️';
+                msg.style.color = '#00ff00';
+                msg.innerText = "सफलता! भारी बाइक आ गई है!";
+            } else if (code === '3333') {
+                display.innerText = '🚓';
+                msg.style.color = '#00ff00';
+                msg.innerText = "सफलता! पुलिस कार आ गई है!";
+            } else if (code === '4444') {
+                display.innerText = '🚁';
+                msg.style.color = '#00ff00';
+                msg.innerText = "सफलता! हेलीकॉप्टर उड़ान भरने के लिए तैयार है!";
+            } else {
+                display.innerText = '❌';
+                msg.style.color = '#ff4444';
+                msg.innerText = "गलत चीट कोड! सही कोड दोबारा डालें।";
+            }
+        }
+    </script>
 
-        res.json({ success: true, data: response.data });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+</body>
+</html>
