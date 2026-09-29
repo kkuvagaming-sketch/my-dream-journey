@@ -1,4 +1,4 @@
-<!DOCTYPE html>><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
         }
 
         .welcome-msg {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #f1c40f;
             margin-bottom: 10px;
@@ -30,7 +30,7 @@
         .game-container {
             width: 100%;
             max-width: 600px;
-            height: 250px;
+            height: 220px;
             background: #222;
             border-bottom: 4px solid #fff;
             position: relative;
@@ -45,6 +45,7 @@
             left: 40px;
             font-size: 40px;
             line-height: 40px;
+            transform: scaleX(-1); /* डायनासोर को सीधी दिशा में करने के लिए */
         }
 
         #obstacle {
@@ -64,6 +65,22 @@
             color: #00ffcc;
         }
 
+        #gameOverText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff4757;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 10;
+            text-align: center;
+        }
+
         .instructions {
             margin-top: 15px;
             font-size: 14px;
@@ -81,25 +98,38 @@
         <div class="score-board">स्कोर: <span id="score">0</span></div>
         <div id="dino">🦖</div>
         <div id="obstacle">🌵</div>
+        <div id="gameOverText">गेम ओवर!<br><span style="font-size: 14px; color: #fff;">पुनः खेलने के लिए टैप करें</span></div>
     </div>
 
-    <div class="instructions">स्क्रीन पर कहीं भी टैप करें या क्लिक करें (कूदने के लिए)!</div>
+    <div class="instructions">स्क्रीन पर कहीं भी टैप करें (कूदने के लिए)!</div>
 
     <script>
         const dino = document.getElementById("dino");
         const obstacle = document.getElementById("obstacle");
         const scoreDisplay = document.getElementById("score");
+        const gameOverText = document.getElementById("gameOverText");
 
         let isJumping = false;
+        let isGameOver = false;
         let score = 0;
 
         function jump() {
+            if (isGameOver) {
+                // गेम रीसेट करें
+                isGameOver = false;
+                score = 0;
+                scoreDisplay.innerText = score;
+                gameOverText.style.display = "none";
+                obstaclePos = 600;
+                return;
+            }
+
             if (isJumping) return;
             isJumping = true;
             
             let jumpHeight = 0;
             let upInterval = setInterval(() => {
-                if (jumpHeight >= 110) {
+                if (jumpHeight >= 100) {
                     clearInterval(upInterval);
                     let downInterval = setInterval(() => {
                         if (jumpHeight <= 0) {
@@ -115,24 +145,22 @@
             }, 20);
         }
 
-        // रुकावट (Obstacle) और गेम ओवर का लूप
         let obstaclePos = 600;
         let gameInterval = setInterval(() => {
-            obstaclePos -= 6;
-            if (obstaclePos < -30) {
-                obstaclePos = 600;
-                score += 10;
-                scoreDisplay.innerText = score;
-            }
-            obstacle.style.left = obstaclePos + "px";
+            if (!isGameOver) {
+                obstaclePos -= 7;
+                if (obstaclePos < -30) {
+                    obstaclePos = 600;
+                    score += 10;
+                    scoreDisplay.innerText = score;
+                }
+                obstacle.style.left = obstaclePos + "px";
 
-            // टक्कर (Collision) चेक करना
-            let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
-            if (obstaclePos > 30 && obstaclePos < 70 && dinoBottom <= 30) {
-                alert("गेम ओवर! आपका स्कोर: " + score);
-                score = 0;
-                scoreDisplay.innerText = score;
-                obstaclePos = 600;
+                let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+                if (obstaclePos > 30 && obstaclePos < 70 && dinoBottom <= 30) {
+                    isGameOver = true;
+                    gameOverText.style.display = "block";
+                }
             }
         }, 30);
     </script>
