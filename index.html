@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Indian Bikes 3D - Open World</title>
+    <title>Indian Bikes Driving 3D - Playable</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #050505;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #111;
+            font-family: Arial, sans-serif;
             color: #fff;
         }
 
-        /* --- मेनू स्क्रीन (Main Menu Style) --- */
+        /* --- मेनू स्क्रीन --- */
         #mainMenu {
             position: absolute;
             width: 100%;
@@ -26,17 +26,16 @@
             align-items: center;
             justify-content: center;
             z-index: 100;
-            transition: opacity 0.5s ease;
         }
         .menu-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: #f39c12;
             margin-bottom: 25px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
         }
         .menu-btn {
-            width: 220px;
+            width: 240px;
             padding: 14px;
             margin: 8px 0;
             font-size: 18px;
@@ -47,12 +46,8 @@
             border-radius: 6px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: 0.2s;
         }
-        .menu-btn:active {
-            transform: scale(0.95);
-            background: #e0e0e0;
-        }
+        .menu-btn:active { background: #d0d0d0; }
 
         /* --- गेम प्ले स्क्रीन --- */
         #gameScreen {
@@ -60,33 +55,30 @@
             width: 100%;
             height: 100%;
             display: none;
-            background: linear-gradient(to bottom, #4a90e2 60%, #333 40%);
+            background: linear-gradient(to bottom, #3498db 55%, #2ecc71 45%);
             overflow: hidden;
         }
 
-        /* 3D शहर का रास्ता और माहौल */
-        .world-3d {
+        /* बड़ा ओपन वर्ल्ड रोड मैप */
+        .world-container {
             position: absolute;
             width: 300%;
             height: 100%;
-            display: flex;
+            top: 0;
+            left: 0;
             transition: transform 0.1s linear;
         }
-        .road-strip {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            background: #2c3e50;
-        }
-        .road {
+
+        .road-environment {
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 45%;
-            background: #1a1a1a;
+            height: 45vh;
+            background: #2c3e50;
             border-top: 6px solid #7f8c8d;
         }
-        .road-line {
+
+        .road-stripe {
             position: absolute;
             top: 50%;
             width: 100%;
@@ -95,95 +87,74 @@
             transform: translateY(-50%);
         }
 
-        /* कैरेक्टर और वाहन */
+        /* कैरेक्टर और वाहन की लाइव पोजीशन */
         #player {
             position: absolute;
             bottom: 15vh;
-            left: 30%;
-            font-size: 65px;
+            font-size: 60px;
             z-index: 10;
-            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.6));
+            transition: left 0.1s linear;
         }
         #vehicle {
             position: absolute;
             bottom: 15vh;
-            left: 42%;
-            font-size: 75px;
-            z-index: 10;
-            transition: transform 0.3s;
-            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.6));
+            font-size: 70px;
+            z-index: 9;
+            display: none;
         }
 
-        /* गेम के अंदर के कंट्रोल्स (Buttons & UI) */
+        /* संदेश डिस्प्ले */
+        #msgDisplay {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #f1c40f;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 16px;
+            border-radius: 20px;
+            z-index: 20;
+            text-align: center;
+        }
+
+        /* टॉप राइट कंट्रोल्स */
         .ui-top-right {
             position: absolute;
             top: 15px;
             right: 15px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             z-index: 20;
         }
         .hud-btn {
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             background: rgba(0,0,0,0.6);
-            border: 2px solid rgba(255,255,255,0.7);
+            border: 2px solid rgba(255,255,255,0.8);
             border-radius: 50%;
             color: #fff;
-            font-size: 20px;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
         }
 
-        /* चीट कोड बॉक्स (नीचे बीच में) */
-        .cheat-box {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            background: rgba(0,0,0,0.7);
-            padding: 8px 15px;
-            border-radius: 30px;
-            z-index: 20;
-            border: 1px solid #555;
-        }
-        .cheat-box input {
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 16px;
-            width: 120px;
-            text-align: center;
-            outline: none;
-        }
-        .cheat-box button {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* मूविंग कंट्रोल्स (Left & Right arrows) */
-        .move-controls {
+        /* गोल जॉयस्टिक कंट्रोल (दाएँ या बाएँ तरफ चलाने के लिए) */
+        .joystick-area {
             position: absolute;
             bottom: 20px;
             left: 20px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             z-index: 20;
         }
-        .dir-btn {
-            width: 55px;
-            height: 55px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid #fff;
+        .joy-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid #fff;
             border-radius: 50%;
             font-size: 24px;
             color: white;
@@ -191,18 +162,60 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        .joy-btn:active { background: rgba(255,255,255,0.4); }
+
+        /* गाड़ी बैठने/चलाने का एक्शन बटन */
+        #actionBtn {
+            position: absolute;
+            bottom: 30px;
+            right: 140px;
+            width: 70px;
+            height: 70px;
+            background: #e67e22;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
         }
 
-        #msgDisplay {
+        /* चीट कोड बॉक्स (नीचे बीच में) */
+        .cheat-box {
             position: absolute;
-            top: 70px;
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            color: #2ecc71;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 6px;
+            background: rgba(0,0,0,0.8);
+            padding: 6px 12px;
+            border-radius: 25px;
             z-index: 20;
+            border: 1px solid #555;
+        }
+        .cheat-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 15px;
+            width: 90px;
+            text-align: center;
+            outline: none;
+        }
+        .cheat-box button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -212,38 +225,44 @@
     <div id="mainMenu">
         <div class="menu-title">🇮🇳 Indian Bikes 3D</div>
         <button class="menu-btn" onclick="startGame()">Play</button>
-        <button class="menu-btn" onclick="alert('Setting: Graphics High, Controls Normal')">Setting</button>
+        <button class="menu-btn" onclick="alert('Setting: Graphics Normal')">Setting</button>
         <button class="menu-btn" onclick="alert('Mission मोड जल्द आ रहा है!')">Mission</button>
         <button class="menu-btn" onclick="alert('Challenge मोड जल्द आ रहा है!')">Challenge</button>
     </div>
 
     <!-- गेम प्ले स्क्रीन -->
     <div id="gameScreen">
-        <div id="msgDisplay">चीट कोड डालें और वाहन मंगाएं!</div>
+        <div id="msgDisplay">चीट कोड (जैसे 1111) डालकर गाड़ी मंगाएं!</div>
 
         <!-- मूविंग वर्ल्ड मैप -->
-        <div class="world-container" id="worldContainer" style="position:relative; width:100%; height:100%;">
-            <div id="player">🚶‍♂️</div>
-            <div id="vehicle">🅿️</div>
+        <div class="world-container" id="worldContainer">
+            <div class="road-environment">
+                <div class="road-stripe"></div>
+            </div>
+            <div id="player" style="left: 20vw;">🚶‍♂️</div>
+            <div id="vehicle" style="left: 45vw;">🏎️</div>
         </div>
 
-        <!-- टॉप राइट कंट्रोल्स (कैमरा, टाइम, गन) -->
+        <!-- टॉप राइट कंट्रोल्स -->
         <div class="ui-top-right">
-            <div class="hud-btn" onclick="alert('कैमरा एंगल बदला गया')">📷</div>
+            <div class="hud-btn" onclick="alert('कैमरा बदला गया')">📷</div>
             <div class="hud-btn" onclick="alert('वेपन मेनू खुला')">🔫</div>
-            <div class="hud-btn" onclick="location.reload()" title="होम">🏠</div>
+            <div class="hud-btn" onclick="location.reload()">🏠</div>
         </div>
 
-        <!-- बाएँ तरफ चलने के बटन -->
-        <div class="move-controls">
-            <div class="dir-btn" ontouchstart="moveWorld(1)" onmousedown="moveWorld(1)">◀</div>
-            <div class="dir-btn" ontouchstart="moveWorld(-1)" onmousedown="moveWorld(-1)">▶</div>
+        <!-- गोल जॉयस्टिक / चलने के बटन -->
+        <div class="joystick-area">
+            <div class="joy-btn" ontouchstart="startMove(-1)" ontouchend="stopMove()" onmousedown="startMove(-1)" onmouseup="stopMove()">◀</div>
+            <div class="joy-btn" ontouchstart="startMove(1)" ontouchend="stopMove()" onmousedown="startMove(1)" onmouseup="stopMove()">▶</div>
         </div>
+
+        <!-- गाड़ी में बैठने/उतरने का बटन -->
+        <button id="actionBtn" onclick="toggleDrive()">ड्राइव</button>
 
         <!-- चीट कोड इनपुट पैनल -->
         <div class="cheat-box">
             <input type="number" id="cheatCodeInput" placeholder="कोड (1111)">
-            <button onclick="spawnCheatVehicle()">मंगाएं</button>
+            <button onclick="spawnVehicle()">मंगाएं</button>
         </div>
     </div>
 
@@ -253,45 +272,85 @@
             document.getElementById('gameScreen').style.display = 'block';
         }
 
-        let mapPos = 0;
-        function moveWorld(direction) {
-            mapPos += direction * 40;
-            if (mapPos > 0) mapPos = 0;
-            if (mapPos < -500) mapPos = -500;
-            document.getElementById('worldContainer').style.transform = `translateX(${mapPos}px)`;
+        let playerPos = 20; // screen percentage
+        let vehiclePos = 45; // screen percentage
+        let mapOffset = 0;
+        let moveDir = 0;
+        let isDriving = false;
+        let vehicleType = '🏎️';
+
+        // कैरेक्टर या गाड़ी को आगे-पीछे ले जाने का लूप
+        setInterval(() => {
+            if (moveDir !== 0) {
+                if (!isDriving) {
+                    playerPos += moveDir * 1.5;
+                    if (playerPos < 5) playerPos = 5;
+                    if (playerPos > 85) playerPos = 85;
+                    document.getElementById('player').style.left = playerPos + 'vw';
+                } else {
+                    // गाड़ी चलाते समय मैप और गाड़ी मूव होगी
+                    mapOffset -= moveDir * 2;
+                    if (mapOffset > 0) mapOffset = 0;
+                    if (mapOffset < -300) mapOffset = -300;
+                    document.getElementById('worldContainer').style.transform = `translateX(${mapOffset}vw)`;
+                }
+                checkVehicleDistance();
+            }
+        }, 30);
+
+        function startMove(dir) { moveDir = dir; }
+        function stopMove() { moveDir = 0; }
+
+        function spawnVehicle() {
+            const code = document.getElementById('cheatCodeInput').value.trim();
+            const msg = document.getElementById('msgDisplay');
+            const vehElem = document.getElementById('vehicle');
+
+            if (code === '1111') { vehicleType = '🏎️'; msg.innerText = "सुपर कार आ गई! पास जाकर 'ड्राइव' दबाएं।"; }
+            else if (code === '2222') { vehicleType = '🏍️'; msg.innerText = "सुपर बाइक आ गई! पास जाकर 'ड्राइव' दबाएं।"; }
+            else if (code === '3333') { vehicleType = '🚓'; msg.innerText = "पुलिस कार आ गई! पास जाकर 'ड्राइव' दबाएं।"; }
+            else if (code === '4444') { vehicleType = '🚁'; msg.innerText = "हेलीकॉप्टर आ गया!"; }
+            else { msg.innerText = "गलत कोड! (1111, 2222, 3333 डालें)"; return; }
+
+            vehElem.innerText = vehicleType;
+            vehElem.style.display = 'block';
+            vehElem.style.left = vehiclePos + 'vw';
+            checkVehicleDistance();
         }
 
-        function spawnCheatVehicle() {
-            const code = document.getElementById('cheatCodeInput').value.trim();
-            const vehicle = document.getElementById('vehicle');
+        // चेक करना कि क्या कैरेक्टर गाड़ी के पास है
+        function checkVehicleDistance() {
+            const actionBtn = document.getElementById('actionBtn');
+            if (document.getElementById('vehicle').style.display === 'block' && !isDriving) {
+                let distance = Math.abs(playerPos - vehiclePos);
+                if (distance < 10) {
+                    actionBtn.style.display = 'flex';
+                } else {
+                    actionBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // गाड़ी में बैठना और चलाना
+        function toggleDrive() {
             const player = document.getElementById('player');
+            const vehElem = document.getElementById('vehicle');
+            const actionBtn = document.getElementById('actionBtn');
             const msg = document.getElementById('msgDisplay');
 
-            vehicle.style.transform = 'scale(0.2)';
-
-            setTimeout(() => {
-                if (code === '1111') {
-                    vehicle.innerText = '🏎️';
-                    player.innerText = '😎';
-                    msg.innerText = "सफलता! सुपर कार आ गई है!";
-                } else if (code === '2222') {
-                    vehicle.innerText = '🏍️';
-                    player.innerText = '🏍️';
-                    msg.innerText = "सफलता! भारी बाइक आ गई है!";
-                } else if (code === '3333') {
-                    vehicle.innerText = '🚓';
-                    player.innerText = '👮‍♂️';
-                    msg.innerText = "सफलता! पुलिस कार आ गई है!";
-                } else if (code === '4444') {
-                    vehicle.innerText = '🚁';
-                    player.innerText = '🎖️';
-                    msg.innerText = "सफलता! हेलीकॉप्टर आ गया है!";
-                } else {
-                    vehicle.innerText = '❌';
-                    msg.innerText = "गलत चीट कोड! (जैसे: 1111 डालें)";
-                }
-                vehicle.style.transform = 'scale(1)';
-            }, 200);
+            if (!isDriving) {
+                isDriving = true;
+                player.style.display = 'none'; // कैरेक्टर गाड़ी के अंदर छिप गया
+                vehElem.innerText = '驾驶 ' + vehicleType; // गाड़ी चालू मोड
+                actionBtn.innerText = 'उतरें';
+                msg.innerText = "आप गाड़ी चला रहे हैं! जॉयस्टिक से आगे बढ़ें।";
+            } else {
+                isDriving = false;
+                player.style.display = 'block'; // कैरेक्टर बाहर आ गया
+                vehElem.innerText = vehicleType;
+                actionBtn.innerText = 'ड्राइव';
+                msg.innerText = "आप गाड़ी से उतर गए हैं।";
+            }
         }
     </script>
 
