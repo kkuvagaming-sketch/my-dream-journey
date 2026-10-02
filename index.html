@@ -1,219 +1,364 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>नमस्ते! - खेलें मज़ेदार गेम</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #1a1a2e;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .welcome-msg {
-            font-size: 18px;
-            font-weight: bold;
-            color: #f1c40f;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .game-container {
-            width: 100%;
-            max-width: 600px;
-            height: 240px;
-            background: linear-gradient(to bottom, #4a90e2, #b0e0e6); /* सुबह का सुंदर नीला आसमान */
-            border-bottom: 5px solid #2e7d32; /* ज़मीन का हरा हिस्सा */
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            cursor: pointer;
-        }
-
-        /* उगता हुआ सूरज */
-        .sun {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-            font-size: 40px;
-            animation: glow 2s infinite alternate;
-        }
-
-        @keyframes glow {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
-        }
-
-        /* पीछे के पहाड़ */
-        .mountains {
-            position: absolute;
-            bottom: 30px;
-            left: 0;
-            width: 100%;
-            font-size: 35px;
-            letter-spacing: 20px;
-            color: #557a95;
-            white-space: nowrap;
-        }
-
-        /* उड़ते हुए पक्षी */
-        #bird {
-            position: absolute;
-            top: 30px;
-            left: 600px;
-            font-size: 20px;
-            animation: flyBird 8s linear infinite;
-        }
-
-        @keyframes flyBird {
-            0% { left: 600px; }
-            100% { left: -50px; }
-        }
-
-        #dino {
-            position: absolute;
-            bottom: 5px;
-            left: 40px;
-            font-size: 40px;
-            line-height: 40px;
-            transform: scaleX(-1); /* डायनासोर को सीधी दिशा में करने के लिए */
-            z-index: 5;
-        }
-
-        #obstacle {
-            position: absolute;
-            bottom: 5px;
-            left: 600px;
-            font-size: 35px;
-            line-height: 35px;
-            z-index: 5;
-        }
-
-        .score-board {
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background: rgba(0,0,0,0.3);
-            padding: 4px 10px;
-            border-radius: 5px;
-            z-index: 10;
-        }
-
-        #gameOverText {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 20px;
-            font-weight: bold;
-            color: #ff4757;
-            background: rgba(0,0,0,0.85);
-            padding: 12px 20px;
-            border-radius: 8px;
-            display: none;
-            z-index: 20;
-            text-align: center;
-            border: 1px solid #ff4757;
-        }
-
-        .instructions {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #ccc;
-            text-align: center;
-            padding: 0 10px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Indian Bike Riding 3D</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:#87ceeb;font-family:Arial;color:white}
+#game{position:relative;width:100vw;height:100dvh;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+#hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none;gap:8px}
+.info{background:#10212bd9;padding:10px 13px;border:1px solid #ffffff44;border-radius:12px;font-size:13px}
+.info b{display:block;color:#ffe36b;font-size:17px;margin-top:4px}
+#controls{position:absolute;bottom:18px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:end}
+.pad{display:grid;grid-template-columns:55px 55px 55px;grid-template-rows:52px 52px;gap:5px}
+button{color:white;background:#162b3ddd;border:2px solid #ffffff88;border-radius:13px;font-weight:bold;font-size:20px;touch-action:none;user-select:none}
+button:active{background:#16864e}
+.pad button:nth-child(1){grid-column:2}
+.pad button:nth-child(2){grid-column:1;grid-row:2}
+.pad button:nth-child(3){grid-column:2;grid-row:2}
+.pad button:nth-child(4){grid-column:3;grid-row:2}
+.actions{display:grid;grid-template-columns:75px 75px;gap:7px}
+.actions button{height:48px;font-size:13px}
+#switch{background:#177b49}
+#boost{background:#a94d1e}
+#intro{position:absolute;inset:0;background:#07121bdc;display:flex;align-items:center;justify-content:center;padding:20px}
+.panel{width:min(360px,100%);padding:24px;border-radius:20px;text-align:center;background:linear-gradient(145deg,#1c4c3c,#14283a);border:2px solid #f6d45a}
+.panel h1{color:#ffdf5d}
+.panel p{line-height:1.6;color:#e2edf0}
+#start{height:50px;width:100%;background:#16974d;border:0;font-size:18px}
+#hint{position:absolute;top:90px;left:50%;transform:translateX(-50%);background:#10212bd9;padding:8px 12px;border-radius:10px;font-size:12px;white-space:nowrap}
+</style>
 </head>
-<body onclick="jump()">
-
-    <div class="welcome-msg">नमस्ते! 🙏 वेबसाइट पर आपका स्वागत है, तब तक यह गेम खेलें!</div>
-
-    <div class="game-container" id="gameArea">
-        <div class="sun">☀️</div>
-        <div class="mountains">⛰️ ⛰️️ ⛰️ ⛰️ ⛰️ ⛰️</div>
-        <div id="bird">🕊️</div>
-        <div class="score-board">स्कोर: <span id="score">0</span></div>
-        <div id="dino">🦖</div>
-        <div id="obstacle">🌵</div>
-        <div id="gameOverText">गेम ओवर!<br><span style="font-size: 13px; color: #fff;">पुनः खेलने के लिए टैप करें</span></div>
+<body>
+<div id="game">
+  <div id="hud">
+    <div class="info">🏆 SCORE<b id="score">0</b></div>
+    <div class="info">🏍️ MODE<b id="mode">पैदल</b></div>
+    <div class="info">⚡ SPEED<b id="speed">0 km/h</b></div>
+  </div>
+  <div id="hint">शहर में घूमने के लिए कंट्रोल दबाएँ</div>
+  <div id="controls">
+    <div class="pad">
+      <button data-key="up">⬆️</button>
+      <button data-key="left">⬅️</button>
+      <button data-key="down">⬇️</button>
+      <button data-key="right">➡️</button>
     </div>
+    <div class="actions">
+      <button id="switch">🏍️<br>BIKE</button>
+      <button id="boost">⚡<br>BOOST</button>
+      <button id="jump">⬆️<br>JUMP</button>
+      <button id="reset">⟳<br>RESET</button>
+    </div>
+  </div>
+  <div id="intro">
+    <div class="panel">
+      <h1>🏍️ INDIAN BIKE RIDING</h1>
+      <p>अपनी 3D दुनिया में आपका स्वागत है!<br>
+      पैदल चलो, बाइक चलाओ और शहर घूमो।</p>
+      <p>मोबाइल कंट्रोल से अपने कैरेक्टर को चलाएँ।</p>
+      <button id="start">▶ START GAME</button>
+    </div>
+  </div>
+</div>
 
-    <div class="instructions">स्क्रीन पर कहीं भी टैप करें (कूदने के लिए)!</div>
+<script type="module">
+import * as THREE from
+'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-    <script>
-        const dino = document.getElementById("dino");
-        const obstacle = document.getElementById("obstacle");
-        const scoreDisplay = document.getElementById("score");
-        const gameOverText = document.getElementById("gameOverText");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
+scene.fog = new THREE.Fog(0x87ceeb, 90, 350);
 
-        let isJumping = false;
-        let isGameOver = false;
-        let score = 0;
+const camera = new THREE.PerspectiveCamera(
+  65, innerWidth/innerHeight, 0.1, 800
+);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.getElementById("game").prepend(renderer.domElement);
 
-        function jump() {
-            if (isGameOver) {
-                // गेम रीसेट करें
-                isGameOver = false;
-                score = 0;
-                scoreDisplay.innerText = score;
-                gameOverText.style.display = "none";
-                obstaclePos = 600;
-                return;
-            }
+scene.add(new THREE.HemisphereLight(0xffffff,0x58734a,2));
+const sun=new THREE.DirectionalLight(0xffffff,2.2);
+sun.position.set(-80,120,60);
+sun.castShadow=true;
+sun.shadow.mapSize.set(1024,1024);
+scene.add(sun);
 
-            if (isJumping) return;
-            isJumping = true;
-            
-            let jumpHeight = 0;
-            let upInterval = setInterval(() => {
-                if (jumpHeight >= 110) {
-                    clearInterval(upInterval);
-                    let downInterval = setInterval(() => {
-                        if (jumpHeight <= 0) {
-                            clearInterval(downInterval);
-                            isJumping = false;
-                        }
-                        jumpHeight -= 10;
-                        dino.style.bottom = (jumpHeight + 5) + "px";
-                    }, 20);
-                }
-                jumpHeight += 10;
-                dino.style.bottom = (jumpHeight + 5) + "px";
-            }, 20);
-        }
+// Materials
+const mat=(color,roughness=0.85)=>new THREE.MeshStandardMaterial({color,roughness});
+const grass=mat(0x55934c), asphalt=mat(0x45494d);
+const white=mat(0xffffff), yellow=mat(0xffd34e);
+const red=mat(0xe52c27), black=mat(0x171b20);
+const blue=mat(0x247ac4), skin=mat(0xd9a078);
+const shirt=mat(0x1761a2), pants=mat(0x252e45);
+const glass=mat(0x9bd9e9,0.25);
 
-        let obstaclePos = 600;
-        let gameInterval = setInterval(() => {
-            if (!isGameOver) {
-                obstaclePos -= 7;
-                if (obstaclePos < -30) {
-                    obstaclePos = 600;
-                    score += 10;
-                    scoreDisplay.innerText = score;
-                }
-                obstacle.style.left = obstaclePos + "px";
+function cube(parent,w,h,d,material,x,y,z){
+  const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+  o.position.set(x,y,z);
+  o.castShadow=true;o.receiveShadow=true;
+  parent.add(o);return o;
+}
+function cylinder(parent,r1,r2,h,material,x,y,z,segments=12){
+  const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,segments),material);
+  o.position.set(x,y,z);o.castShadow=true;
+  parent.add(o);return o;
+}
 
-                let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
-                if (obstaclePos > 30 && obstaclePos < 70 && dinoBottom <= 35) {
-                    isGameOver = true;
-                    gameOverText.style.display = "block";
-                }
-            }
-        }, 30);
-    </script>
+// Ground
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(700,700),grass);
+ground.rotation.x=-Math.PI/2;
+ground.position.y=-0.08;
+ground.receiveShadow=true;scene.add(ground);
 
+// City roads
+for(let x=-300;x<=300;x+=60){
+  const road=new THREE.Mesh(new THREE.PlaneGeometry(13,700),asphalt);
+  road.rotation.x=-Math.PI/2;
+  road.position.set(x,0,0);road.receiveShadow=true;scene.add(road);
+  for(let z=-340;z<350;z+=16){
+    cube(scene,0.22,0.025,7,white,x,0.03,z);
+  }
+}
+for(let z=-300;z<=300;z+=60){
+  const road=new THREE.Mesh(new THREE.PlaneGeometry(700,13),asphalt);
+  road.rotation.x=-Math.PI/2;
+  road.position.set(0,0,z);road.receiveShadow=true;scene.add(road);
+  for(let x=-340;x<350;x+=16){
+    cube(scene,7,0.025,0.22,white,x,0.03,z);
+  }
+}
+
+// Houses
+const houseColors=[0xe6b982,0xe4dfd1,0xd58d6a,0x9ec3a2,0xd7b5df];
+const buildings=[];
+for(let x=-270;x<=270;x+=30){
+ for(let z=-270;z<=270;z+=30){
+   if(Math.abs(x%60)<10||Math.abs(z%60)<10)continue;
+   if(Math.random()<0.35)continue;
+   const w=12+Math.random()*7;
+   const d=12+Math.random()*7;
+   const h=8+Math.random()*15;
+   const group=new THREE.Group();
+   cube(group,w,h,d,mat(houseColors[Math.floor(Math.random()*houseColors.length)]),0,h/2,0);
+   // Roof
+   const roof=cube(group,w+1,1,d+1,mat(0x914e3c),0,h+0.5,0);
+   // Front door and windows
+   cube(group,2.2,4,0.18,mat(0x65402d),0,2,d/2+0.1);
+   cube(group,2.2,2,0.2,glass,-w/3, h*0.65,d/2+0.1);
+   cube(group,2.2,2,0.2,glass,w/3,h*0.65,d/2+0.1);
+   group.position.set(x,0,z);
+   scene.add(group);buildings.push({x,z,w,d,group});
+ }
+}
+
+// Trees
+function tree(x,z){
+ const g=new THREE.Group();
+ cylinder(g,0.4,0.65,4,mat(0x725034),0,2,0);
+ const leaves=new THREE.Mesh(
+   new THREE.SphereGeometry(3.3,8,7),mat(0x26743a));
+ leaves.position.y=5;leaves.castShadow=true;g.add(leaves);
+ g.position.set(x,0,z);scene.add(g);
+}
+for(let i=0;i<190;i++){
+ let x=(Math.random()-.5)*600;
+ let z=(Math.random()-.5)*600;
+ if(Math.abs(x%60)<10||Math.abs(z%60)<10)continue;
+ tree(x,z);
+}
+
+// Character
+const player=new THREE.Group();
+const body=new THREE.Group();
+player.add(body);
+scene.add(player);
+const torso=cube(body,1.05,1.35,0.65,shirt,0,2.0,0);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.42,16,12),skin);
+head.position.set(0,3.05,0);head.castShadow=true;body.add(head);
+// Hair
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.43,12,8,0,Math.PI*2,0,Math.PI/2),black);
+hair.position.set(0,3.17,0);body.add(hair);
+// Eyes
+cube(body,.12,.09,.05,black,-.14,3.08,.38);
+cube(body,.12,.09,.05,black,.14,3.08,.38);
+// Arms
+const armL=cube(body,.3,1.2,.35,shirt,-.72,2.0,0);
+const armR=cube(body,.3,1.2,.35,shirt,.72,2.0,0);
+// Hands
+const handL=cube(body,.28,.25,.3,skin,-.72,1.35,0);
+const handR=cube(body,.28,.25,.3,skin,.72,1.35,0);
+// Legs
+const legL=cube(body,.4,1.05,.48,pants,-.29,.55,0);
+const legR=cube(body,.4,1.05,.48,pants,.29,.55,0);
+cube(body,.48,.22,.7,black,-.29,.1,.12);
+cube(body,.48,.22,.7,black,.29,.1,.12);
+
+// Motorcycle
+const bike=new THREE.Group();
+scene.add(bike);
+function wheel(z){
+ const w=new THREE.Mesh(
+   new THREE.TorusGeometry(.48,.12,10,20),black);
+ w.rotation.y=Math.PI/2;
+ w.position.set(0,.55,z);
+ w.castShadow=true;bike.add(w);
+ const hub=cylinder(bike,.12,.12,.22,mat(0xb9c0c4),0,.55,z,12);
+ hub.rotation.z=Math.PI/2;
+}
+wheel(-1.25);wheel(1.15);
+// Bike frame and tank
+cube(bike,.45,.5,1.55,red,0,1.05,-.02);
+cube(bike,.58,.42,.7,mat(0xffbb36),0,1.42,-.25);
+cube(bike,.6,.18,.75,black,0,1.5,.55);
+cube(bike,.14,.65,.17,mat(0xbfc7ce),0,.93,1.05);
+cube(bike,.9,.12,.13,mat(0xc2c8d0),0,1.52,1.12);
+const light=new THREE.Mesh(new THREE.SphereGeometry(.2,12,8),yellow);
+light.position.set(0,1.4,1.15);bike.add(light);
+bike.position.set(4,0,4);
+
+// Traffic cars
+const traffic=[];
+for(let i=0;i<12;i++){
+ const g=new THREE.Group();
+ const col=mat([0xe1a32d,0x2e75b9,0xd94b3d,0xece9df][i%4]);
+ cube(g,2.1,.8,4,col,0,1,0);
+ cube(g,1.6,.65,1.8,glass,0,1.65,-.2);
+ const car={group:g,x:(Math.floor(Math.random()*9)-4)*60,
+ z:(Math.random()-.5)*550,speed:3+Math.random()*4};
+ g.position.set(car.x,0,car.z);scene.add(g);traffic.push(car);
+}
+
+// Player state
+player.position.set(2,0,0);
+let riding=false,started=false,score=0,speed=0;
+let heading=0,boost=false,jump=0;
+const keys={};
+let last=performance.now();
+
+function enterBike(){
+ if(!riding && player.position.distanceTo(bike.position)<7){
+   riding=true;
+ }else if(riding){
+   riding=false;
+   player.position.x+=Math.sin(heading)*2;
+   player.position.z+=Math.cos(heading)*2;
+ }
+}
+document.getElementById("switch").onclick=enterBike;
+document.getElementById("boost").onpointerdown=()=>boost=true;
+document.getElementById("boost").onpointerup=()=>boost=false;
+document.getElementById("boost").onpointercancel=()=>boost=false;
+document.getElementById("jump").onclick=()=>{if(!riding)jump=0.7};
+document.getElementById("reset").onclick=()=>{
+ player.position.set(2,0,0);bike.position.set(4,0,4);
+ heading=0;speed=0;riding=false;score=0;
+};
+
+document.querySelectorAll("[data-key]").forEach(b=>{
+ const k=b.dataset.key;
+ b.onpointerdown=e=>{e.preventDefault();keys[k]=true};
+ for(const ev of ["pointerup","pointerleave","pointercancel"])
+ b.addEventListener(ev,()=>keys[k]=false);
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowUp"||e.key==="w")keys.up=true;
+ if(e.key==="ArrowDown"||e.key==="s")keys.down=true;
+ if(e.key==="ArrowLeft"||e.key==="a")keys.left=true;
+ if(e.key==="ArrowRight"||e.key==="d")keys.right=true;
+ if(e.key.toLowerCase()==="e")enterBike();
+});
+document.addEventListener("keyup",e=>{
+ if(e.key==="ArrowUp"||e.key==="w")keys.up=false;
+ if(e.key==="ArrowDown"||e.key==="s")keys.down=false;
+ if(e.key==="ArrowLeft"||e.key==="a")keys.left=false;
+ if(e.key==="ArrowRight"||e.key==="d")keys.right=false;
+});
+
+function update(dt){
+ if(!started)return;
+ const t=dt/16.67;
+ const maxSpeed=riding?(boost?1.05:.62):.18;
+ if(keys.up)speed=Math.min(maxSpeed,speed+.012*t);
+ else if(keys.down)speed=Math.max(-.2,speed-.018*t);
+ else speed*=Math.pow(.97,t);
+ if(keys.left)heading+=.035*t*(riding?1.1:1);
+ if(keys.right)heading-=.035*t*(riding?1.1:1);
+
+ const direction=new THREE.Vector3(
+   Math.sin(heading),0,Math.cos(heading));
+ player.position.addScaledVector(direction,speed*t*2.3);
+ player.position.x=THREE.MathUtils.clamp(player.position.x,-330,330);
+ player.position.z=THREE.MathUtils.clamp(player.position.z,-330,330);
+
+ if(riding){
+   bike.position.copy(player.position);
+   bike.position.y=0;
+   bike.rotation.y=heading;
+   body.visible=false;
+ }else{
+   body.visible=true;
+   player.rotation.y=heading;
+   // Keep the bike beside the character after dismount
+ }
+ if(jump>0){
+   player.position.y=Math.sin((.7-jump)/.7*Math.PI)*1.3;
+   jump-=.025*t;
+ }else if(!riding)player.position.y=0;
+
+ // Animate traffic
+ for(const car of traffic){
+   car.z+=car.speed*t;
+   if(car.z>330)car.z=-330;
+   car.group.position.z=car.z;
+ }
+ score+=Math.abs(speed)*t*0.2;
+ document.getElementById("score").textContent=Math.floor(score);
+ document.getElementById("mode").textContent=riding?"बाइक":"पैदल";
+ document.getElementById("speed").textContent=
+   Math.round(Math.abs(speed)*(riding?100:15))+" km/h";
+}
+
+function cameraUpdate(){
+ const target=new THREE.Vector3(
+   player.position.x,player.position.y+(riding?2.8:3.3),
+   player.position.z);
+ const behind=new THREE.Vector3(
+   -Math.sin(heading)*(riding?9:8),
+   riding?5.2:5,
+   -Math.cos(heading)*(riding?9:8));
+ const desired=target.clone().add(behind);
+ camera.position.lerp(desired,.09);
+ camera.lookAt(target);
+}
+
+function animate(now){
+ requestAnimationFrame(animate);
+ const dt=Math.min(now-last,45);last=now;
+ update(dt);
+ cameraUpdate();
+ renderer.render(scene,camera);
+}
+requestAnimationFrame(animate);
+
+document.getElementById("start").onclick=()=>{
+ started=true;
+ document.getElementById("intro").style.display="none";
+};
+
+window.addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
+</script>
 </body>
 </html>
