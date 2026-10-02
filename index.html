@@ -1,364 +1,450 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Indian Bike Riding 3D</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;overflow:hidden;background:#87ceeb;font-family:Arial;color:white}
-#game{position:relative;width:100vw;height:100dvh;overflow:hidden}
-canvas{display:block;width:100%;height:100%}
-#hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none;gap:8px}
-.info{background:#10212bd9;padding:10px 13px;border:1px solid #ffffff44;border-radius:12px;font-size:13px}
-.info b{display:block;color:#ffe36b;font-size:17px;margin-top:4px}
-#controls{position:absolute;bottom:18px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:end}
-.pad{display:grid;grid-template-columns:55px 55px 55px;grid-template-rows:52px 52px;gap:5px}
-button{color:white;background:#162b3ddd;border:2px solid #ffffff88;border-radius:13px;font-weight:bold;font-size:20px;touch-action:none;user-select:none}
-button:active{background:#16864e}
-.pad button:nth-child(1){grid-column:2}
-.pad button:nth-child(2){grid-column:1;grid-row:2}
-.pad button:nth-child(3){grid-column:2;grid-row:2}
-.pad button:nth-child(4){grid-column:3;grid-row:2}
-.actions{display:grid;grid-template-columns:75px 75px;gap:7px}
-.actions button{height:48px;font-size:13px}
-#switch{background:#177b49}
-#boost{background:#a94d1e}
-#intro{position:absolute;inset:0;background:#07121bdc;display:flex;align-items:center;justify-content:center;padding:20px}
-.panel{width:min(360px,100%);padding:24px;border-radius:20px;text-align:center;background:linear-gradient(145deg,#1c4c3c,#14283a);border:2px solid #f6d45a}
-.panel h1{color:#ffdf5d}
-.panel p{line-height:1.6;color:#e2edf0}
-#start{height:50px;width:100%;background:#16974d;border:0;font-size:18px}
-#hint{position:absolute;top:90px;left:50%;transform:translateX(-50%);background:#10212bd9;padding:8px 12px;border-radius:10px;font-size:12px;white-space:nowrap}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jungle Run 3D - Ultimate Edition</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { overflow: hidden; background: #050d0a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; user-select: none; }
+        #game { position: relative; width: 100vw; height: 100vh; }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        /* HUD UI */
+        #hud { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; }
+        .stat { background: rgba(10, 30, 22, 0.75); backdrop-filter: blur(5px); border: 1.5px solid rgba(255, 215, 0, 0.4); border-radius: 12px; padding: 8px 16px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .stat span { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a0d8b6; display: block; }
+        .stat b { color: #ffd700; font-size: 20px; font-weight: 800; }
+        
+        /* Control Overlay Instructions */
+        #swipe-hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); border-radius: 20px; padding: 8px 20px; font-size: 13px; letter-spacing: 0.5px; color: #e0f2fe; pointer-events: none; border: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Start/Pause/Game Over Overlay */
+        #overlay { position: absolute; inset: 0; background: rgba(5, 15, 10, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
+        .panel { width: min(380px, 90%); background: linear-gradient(160deg, #163e2e, #0d1f18); border: 2px solid #ffd700; border-radius: 24px; padding: 28px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        .panel h1 { font-size: 28px; color: #ffd700; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .panel p { font-size: 14px; line-height: 1.6; color: #d1e7dd; margin-bottom: 20px; }
+        .panel .score-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin: 15px 0; border: 1px solid rgba(255,215,0,0.2); }
+        .panel button { width: 100%; height: 52px; background: linear-gradient(180deg, #28a745, #1e7e34); border: none; border-radius: 14px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(40,167,69,0.4); transition: transform 0.1s; }
+        .panel button:active { transform: scale(0.98); }
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
+
 <div id="game">
-  <div id="hud">
-    <div class="info">🏆 SCORE<b id="score">0</b></div>
-    <div class="info">🏍️ MODE<b id="mode">पैदल</b></div>
-    <div class="info">⚡ SPEED<b id="speed">0 km/h</b></div>
-  </div>
-  <div id="hint">शहर में घूमने के लिए कंट्रोल दबाएँ</div>
-  <div id="controls">
-    <div class="pad">
-      <button data-key="up">⬆️</button>
-      <button data-key="left">⬅️</button>
-      <button data-key="down">⬇️</button>
-      <button data-key="right">➡️</button>
+    <div id="hud">
+        <div class="stat"><span>COINS</span><b id="coins">0</b></div>
+        <div class="stat"><span>SCORE</span><b id="score">0</b></div>
+        <div class="stat"><span>MULTIPLIER</span><b id="speed">1.0x</b></div>
     </div>
-    <div class="actions">
-      <button id="switch">🏍️<br>BIKE</button>
-      <button id="boost">⚡<br>BOOST</button>
-      <button id="jump">⬆️<br>JUMP</button>
-      <button id="reset">⟳<br>RESET</button>
+    
+    <div id="swipe-hint">📱 स्वाइप करें: ⬅️ ➡️ लेन बदलना | ⬆️ कूदना | ⬇️ झुकना</div>
+
+    <div id="overlay">
+        <div class="panel">
+            <h1 id="title">🌴 JUNGLE RUN 3D</h1>
+            <p id="message">जंगल के प्राचीन रास्ते पर भागें, प्राचीन सिक्के इकट्ठा करें और बाधाओं से बचें!</p>
+            <div id="score-details" class="hidden score-box"></div>
+            <button id="start-btn">▶ खेल शुरू करें</button>
+        </div>
     </div>
-  </div>
-  <div id="intro">
-    <div class="panel">
-      <h1>🏍️ INDIAN BIKE RIDING</h1>
-      <p>अपनी 3D दुनिया में आपका स्वागत है!<br>
-      पैदल चलो, बाइक चलाओ और शहर घूमो।</p>
-      <p>मोबाइल कंट्रोल से अपने कैरेक्टर को चलाएँ।</p>
-      <button id="start">▶ START GAME</button>
-    </div>
-  </div>
 </div>
 
+<!-- Three.js Engine Import -->
 <script type="module">
-import * as THREE from
-'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
+// --- Scene Setup ---
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb);
-scene.fog = new THREE.Fog(0x87ceeb, 90, 350);
+scene.background = new THREE.Color(0x1a382b);
+scene.fog = new THREE.FogExp2(0x1a382b, 0.015);
 
-const camera = new THREE.PerspectiveCamera(
-  65, innerWidth/innerHeight, 0.1, 800
-);
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth,innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputColorSpace=THREE.SRGBColorSpace;
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.getElementById("game").prepend(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xffffff,0x58734a,2));
-const sun=new THREE.DirectionalLight(0xffffff,2.2);
-sun.position.set(-80,120,60);
-sun.castShadow=true;
-sun.shadow.mapSize.set(1024,1024);
+// --- Lighting ---
+const ambientLight = new THREE.HemisphereLight(0xffffff, 0x081c15, 1.2);
+scene.add(ambientLight);
+
+const sun = new THREE.DirectionalLight(0xfffaed, 2.0);
+sun.position.set(-20, 40, -10);
+sun.castShadow = true;
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 150;
+const d = 25;
+sun.shadow.camera.left = -d; sun.shadow.camera.right = d;
+sun.shadow.camera.top = d; sun.shadow.camera.bottom = -d;
 scene.add(sun);
 
-// Materials
-const mat=(color,roughness=0.85)=>new THREE.MeshStandardMaterial({color,roughness});
-const grass=mat(0x55934c), asphalt=mat(0x45494d);
-const white=mat(0xffffff), yellow=mat(0xffd34e);
-const red=mat(0xe52c27), black=mat(0x171b20);
-const blue=mat(0x247ac4), skin=mat(0xd9a078);
-const shirt=mat(0x1761a2), pants=mat(0x252e45);
-const glass=mat(0x9bd9e9,0.25);
+// --- Materials ---
+const matGround = new THREE.MeshStandardMaterial({ color: 0x112e20, roughness: 0.9 });
+const matPath = new THREE.MeshStandardMaterial({ color: 0x8c6239, roughness: 0.8 }); // मिट्टी/लकड़ी का प्राचीन रास्ता
+const matWood = new THREE.MeshStandardMaterial({ color: 0x4a2e18, roughness: 0.7 });
+const matLeaves = new THREE.MeshStandardMaterial({ color: 0x1e5c33, roughness: 0.6 });
+const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8, roughness: 0.2 });
+const matHero = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4 });
+const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.5 });
+const matRed = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 });
 
-function cube(parent,w,h,d,material,x,y,z){
-  const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
-  o.position.set(x,y,z);
-  o.castShadow=true;o.receiveShadow=true;
-  parent.add(o);return o;
-}
-function cylinder(parent,r1,r2,h,material,x,y,z,segments=12){
-  const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,segments),material);
-  o.position.set(x,y,z);o.castShadow=true;
-  parent.add(o);return o;
-}
+// --- Environment Generation ---
+const trackWidth = 7;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 600), matGround);
+ground.rotation.x = -Math.PI / 2;
+ground.position.z = 200;
+ground.receiveShadow = true;
+scene.add(ground);
 
-// Ground
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(700,700),grass);
-ground.rotation.x=-Math.PI/2;
-ground.position.y=-0.08;
-ground.receiveShadow=true;scene.add(ground);
+const path = new THREE.Mesh(new THREE.PlaneGeometry(trackWidth, 600), matPath);
+path.rotation.x = -Math.PI / 2;
+path.position.y = 0.01;
+path.position.z = 200;
+path.receiveShadow = true;
+scene.add(path);
 
-// City roads
-for(let x=-300;x<=300;x+=60){
-  const road=new THREE.Mesh(new THREE.PlaneGeometry(13,700),asphalt);
-  road.rotation.x=-Math.PI/2;
-  road.position.set(x,0,0);road.receiveShadow=true;scene.add(road);
-  for(let z=-340;z<350;z+=16){
-    cube(scene,0.22,0.025,7,white,x,0.03,z);
-  }
-}
-for(let z=-300;z<=300;z+=60){
-  const road=new THREE.Mesh(new THREE.PlaneGeometry(700,13),asphalt);
-  road.rotation.x=-Math.PI/2;
-  road.position.set(0,0,z);road.receiveShadow=true;scene.add(road);
-  for(let x=-340;x<350;x+=16){
-    cube(scene,7,0.025,0.22,white,x,0.03,z);
-  }
-}
+// Side Trees & Ruins
+const sceneryObjects = [];
+function createTree(x, z) {
+    const group = new THREE.Group();
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 4, 8), matWood);
+    trunk.position.y = 2;
+    trunk.castShadow = true;
+    group.add(trunk);
 
-// Houses
-const houseColors=[0xe6b982,0xe4dfd1,0xd58d6a,0x9ec3a2,0xd7b5df];
-const buildings=[];
-for(let x=-270;x<=270;x+=30){
- for(let z=-270;z<=270;z+=30){
-   if(Math.abs(x%60)<10||Math.abs(z%60)<10)continue;
-   if(Math.random()<0.35)continue;
-   const w=12+Math.random()*7;
-   const d=12+Math.random()*7;
-   const h=8+Math.random()*15;
-   const group=new THREE.Group();
-   cube(group,w,h,d,mat(houseColors[Math.floor(Math.random()*houseColors.length)]),0,h/2,0);
-   // Roof
-   const roof=cube(group,w+1,1,d+1,mat(0x914e3c),0,h+0.5,0);
-   // Front door and windows
-   cube(group,2.2,4,0.18,mat(0x65402d),0,2,d/2+0.1);
-   cube(group,2.2,2,0.2,glass,-w/3, h*0.65,d/2+0.1);
-   cube(group,2.2,2,0.2,glass,w/3,h*0.65,d/2+0.1);
-   group.position.set(x,0,z);
-   scene.add(group);buildings.push({x,z,w,d,group});
- }
+    const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(2), matLeaves);
+    foliage.position.y = 4.5;
+    foliage.castShadow = true;
+    group.add(foliage);
+
+    group.position.set(x, 0, z);
+    scene.add(group);
+    sceneryObjects.push(group);
 }
 
-// Trees
-function tree(x,z){
- const g=new THREE.Group();
- cylinder(g,0.4,0.65,4,mat(0x725034),0,2,0);
- const leaves=new THREE.Mesh(
-   new THREE.SphereGeometry(3.3,8,7),mat(0x26743a));
- leaves.position.y=5;leaves.castShadow=true;g.add(leaves);
- g.position.set(x,0,z);scene.add(g);
-}
-for(let i=0;i<190;i++){
- let x=(Math.random()-.5)*600;
- let z=(Math.random()-.5)*600;
- if(Math.abs(x%60)<10||Math.abs(z%60)<10)continue;
- tree(x,z);
+for (let z = -50; z < 350; z += 12) {
+    createTree(-6 - Math.random() * 8, z);
+    createTree(6 + Math.random() * 8, z + 4);
 }
 
-// Character
-const player=new THREE.Group();
-const body=new THREE.Group();
-player.add(body);
-scene.add(player);
-const torso=cube(body,1.05,1.35,0.65,shirt,0,2.0,0);
-const head=new THREE.Mesh(new THREE.SphereGeometry(.42,16,12),skin);
-head.position.set(0,3.05,0);head.castShadow=true;body.add(head);
-// Hair
-const hair=new THREE.Mesh(new THREE.SphereGeometry(.43,12,8,0,Math.PI*2,0,Math.PI/2),black);
-hair.position.set(0,3.17,0);body.add(hair);
-// Eyes
-cube(body,.12,.09,.05,black,-.14,3.08,.38);
-cube(body,.12,.09,.05,black,.14,3.08,.38);
-// Arms
-const armL=cube(body,.3,1.2,.35,shirt,-.72,2.0,0);
-const armR=cube(body,.3,1.2,.35,shirt,.72,2.0,0);
-// Hands
-const handL=cube(body,.28,.25,.3,skin,-.72,1.35,0);
-const handR=cube(body,.28,.25,.3,skin,.72,1.35,0);
-// Legs
-const legL=cube(body,.4,1.05,.48,pants,-.29,.55,0);
-const legR=cube(body,.4,1.05,.48,pants,.29,.55,0);
-cube(body,.48,.22,.7,black,-.29,.1,.12);
-cube(body,.48,.22,.7,black,.29,.1,.12);
+// --- Player (Hero) ---
+const hero = new THREE.Group();
+scene.add(hero);
 
-// Motorcycle
-const bike=new THREE.Group();
-scene.add(bike);
-function wheel(z){
- const w=new THREE.Mesh(
-   new THREE.TorusGeometry(.48,.12,10,20),black);
- w.rotation.y=Math.PI/2;
- w.position.set(0,.55,z);
- w.castShadow=true;bike.add(w);
- const hub=cylinder(bike,.12,.12,.22,mat(0xb9c0c4),0,.55,z,12);
- hub.rotation.z=Math.PI/2;
-}
-wheel(-1.25);wheel(1.15);
-// Bike frame and tank
-cube(bike,.45,.5,1.55,red,0,1.05,-.02);
-cube(bike,.58,.42,.7,mat(0xffbb36),0,1.42,-.25);
-cube(bike,.6,.18,.75,black,0,1.5,.55);
-cube(bike,.14,.65,.17,mat(0xbfc7ce),0,.93,1.05);
-cube(bike,.9,.12,.13,mat(0xc2c8d0),0,1.52,1.12);
-const light=new THREE.Mesh(new THREE.SphereGeometry(.2,12,8),yellow);
-light.position.set(0,1.4,1.15);bike.add(light);
-bike.position.set(4,0,4);
+// Hero Body Parts
+const bodyGroup = new THREE.Group();
+hero.add(bodyGroup);
 
-// Traffic cars
-const traffic=[];
-for(let i=0;i<12;i++){
- const g=new THREE.Group();
- const col=mat([0xe1a32d,0x2e75b9,0xd94b3d,0xece9df][i%4]);
- cube(g,2.1,.8,4,col,0,1,0);
- cube(g,1.6,.65,1.8,glass,0,1.65,-.2);
- const car={group:g,x:(Math.floor(Math.random()*9)-4)*60,
- z:(Math.random()-.5)*550,speed:3+Math.random()*4};
- g.position.set(car.x,0,car.z);scene.add(g);traffic.push(car);
-}
+const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.0, 0.4), matHero);
+torso.position.y = 1.6;
+torso.castShadow = true;
+bodyGroup.add(torso);
 
-// Player state
-player.position.set(2,0,0);
-let riding=false,started=false,score=0,speed=0;
-let heading=0,boost=false,jump=0;
-const keys={};
-let last=performance.now();
+const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), matSkin);
+head.position.y = 2.4;
+head.castShadow = true;
+bodyGroup.add(head);
 
-function enterBike(){
- if(!riding && player.position.distanceTo(bike.position)<7){
-   riding=true;
- }else if(riding){
-   riding=false;
-   player.position.x+=Math.sin(heading)*2;
-   player.position.z+=Math.cos(heading)*2;
- }
-}
-document.getElementById("switch").onclick=enterBike;
-document.getElementById("boost").onpointerdown=()=>boost=true;
-document.getElementById("boost").onpointerup=()=>boost=false;
-document.getElementById("boost").onpointercancel=()=>boost=false;
-document.getElementById("jump").onclick=()=>{if(!riding)jump=0.7};
-document.getElementById("reset").onclick=()=>{
- player.position.set(2,0,0);bike.position.set(4,0,4);
- heading=0;speed=0;riding=false;score=0;
+// Limbs
+const createLimb = (w, h, d, mat, x, y) => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    mesh.position.set(x, y, 0);
+    mesh.castShadow = true;
+    return mesh;
 };
 
-document.querySelectorAll("[data-key]").forEach(b=>{
- const k=b.dataset.key;
- b.onpointerdown=e=>{e.preventDefault();keys[k]=true};
- for(const ev of ["pointerup","pointerleave","pointercancel"])
- b.addEventListener(ev,()=>keys[k]=false);
-});
-document.addEventListener("keydown",e=>{
- if(e.key==="ArrowUp"||e.key==="w")keys.up=true;
- if(e.key==="ArrowDown"||e.key==="s")keys.down=true;
- if(e.key==="ArrowLeft"||e.key==="a")keys.left=true;
- if(e.key==="ArrowRight"||e.key==="d")keys.right=true;
- if(e.key.toLowerCase()==="e")enterBike();
-});
-document.addEventListener("keyup",e=>{
- if(e.key==="ArrowUp"||e.key==="w")keys.up=false;
- if(e.key==="ArrowDown"||e.key==="s")keys.down=false;
- if(e.key==="ArrowLeft"||e.key==="a")keys.left=false;
- if(e.key==="ArrowRight"||e.key==="d")keys.right=false;
-});
+const armL = createLimb(0.2, 0.8, 0.2, matSkin, -0.5, 1.7);
+const armR = createLimb(0.2, 0.8, 0.2, matSkin, 0.5, 1.7);
+const legL = createLimb(0.25, 0.9, 0.25, matRed, -0.2, 0.7);
+const legR = createLimb(0.25, 0.9, 0.25, matRed, 0.2, 0.7);
 
-function update(dt){
- if(!started)return;
- const t=dt/16.67;
- const maxSpeed=riding?(boost?1.05:.62):.18;
- if(keys.up)speed=Math.min(maxSpeed,speed+.012*t);
- else if(keys.down)speed=Math.max(-.2,speed-.018*t);
- else speed*=Math.pow(.97,t);
- if(keys.left)heading+=.035*t*(riding?1.1:1);
- if(keys.right)heading-=.035*t*(riding?1.1:1);
+bodyGroup.add(armL, armR, legL, legR);
 
- const direction=new THREE.Vector3(
-   Math.sin(heading),0,Math.cos(heading));
- player.position.addScaledVector(direction,speed*t*2.3);
- player.position.x=THREE.MathUtils.clamp(player.position.x,-330,330);
- player.position.z=THREE.MathUtils.clamp(player.position.z,-330,330);
+// --- Game Logic Variables ---
+const lanes = [-2.2, 0, 2.2];
+let currentLane = 1;
+let targetX = lanes[currentLane];
 
- if(riding){
-   bike.position.copy(player.position);
-   bike.position.y=0;
-   bike.rotation.y=heading;
-   body.visible=false;
- }else{
-   body.visible=true;
-   player.rotation.y=heading;
-   // Keep the bike beside the character after dismount
- }
- if(jump>0){
-   player.position.y=Math.sin((.7-jump)/.7*Math.PI)*1.3;
-   jump-=.025*t;
- }else if(!riding)player.position.y=0;
+let speed = 16;
+let score = 0;
+let coinsCollected = 0;
+let isRunning = false;
+let isPaused = false;
+let isGameOver = false;
 
- // Animate traffic
- for(const car of traffic){
-   car.z+=car.speed*t;
-   if(car.z>330)car.z=-330;
-   car.group.position.z=car.z;
- }
- score+=Math.abs(speed)*t*0.2;
- document.getElementById("score").textContent=Math.floor(score);
- document.getElementById("mode").textContent=riding?"बाइक":"पैदल";
- document.getElementById("speed").textContent=
-   Math.round(Math.abs(speed)*(riding?100:15))+" km/h";
+let isJumping = false;
+let jumpVelocity = 0;
+const gravity = -38;
+
+let isSliding = false;
+let slideTimer = 0;
+
+const obstacles = [];
+const coins = [];
+let spawnTimer = 0;
+
+// --- Obstacle & Coin Spawners ---
+function spawnObstacle(z) {
+    const laneIdx = Math.floor(Math.random() * 3);
+    const type = Math.random() > 0.5 ? 'LOG' : 'HURDLE';
+    const group = new THREE.Group();
+
+    if (type === 'LOG') {
+        // Jump over
+        const log = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2.2, 12), matWood);
+        log.rotation.z = Math.PI / 2;
+        log.position.y = 0.5;
+        log.castShadow = true;
+        group.add(log);
+    } else {
+        // Slide under
+        const topBar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.4, 0.4), matWood);
+        topBar.position.y = 1.8;
+        topBar.castShadow = true;
+
+        const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.8), matWood);
+        p1.position.set(-1, 0.9, 0);
+        const p2 = p1.clone();
+        p2.position.x = 1;
+
+        group.add(topBar, p1, p2);
+    }
+
+    group.position.set(lanes[laneIdx], 0, z);
+    group.userData = { type, lane: laneIdx, hit: false };
+    scene.add(group);
+    obstacles.push(group);
 }
 
-function cameraUpdate(){
- const target=new THREE.Vector3(
-   player.position.x,player.position.y+(riding?2.8:3.3),
-   player.position.z);
- const behind=new THREE.Vector3(
-   -Math.sin(heading)*(riding?9:8),
-   riding?5.2:5,
-   -Math.cos(heading)*(riding?9:8));
- const desired=target.clone().add(behind);
- camera.position.lerp(desired,.09);
- camera.lookAt(target);
+function spawnCoins(z) {
+    const laneIdx = Math.floor(Math.random() * 3);
+    for (let i = 0; i < 4; i++) {
+        const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.08, 16), matGold);
+        coin.rotation.x = Math.PI / 2;
+        coin.position.set(lanes[laneIdx], 1.2, z + (i * 2.5));
+        coin.castShadow = true;
+        scene.add(coin);
+        coins.push(coin);
+    }
 }
 
-function animate(now){
- requestAnimationFrame(animate);
- const dt=Math.min(now-last,45);last=now;
- update(dt);
- cameraUpdate();
- renderer.render(scene,camera);
-}
-requestAnimationFrame(animate);
+// --- Swipe Controls (Mobile + Desktop Gestures) ---
+let touchStartX = 0;
+let touchStartY = 0;
 
-document.getElementById("start").onclick=()=>{
- started=true;
- document.getElementById("intro").style.display="none";
-};
+window.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}, { passive: true });
 
-window.addEventListener("resize",()=>{
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
+window.addEventListener('touchend', (e) => {
+    if (!isRunning || isPaused) return;
+
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > 30) {
+            if (dx > 0 && currentLane < 2) currentLane++;
+            else if (dx < 0 && currentLane > 0) currentLane--;
+        }
+    } else {
+        if (Math.abs(dy) > 30) {
+            if (dy < 0) triggerJump();
+            else triggerSlide();
+        }
+    }
+}, { passive: true });
+
+// Keyboard Controls Fallback
+window.addEventListener('keydown', (e) => {
+    if (!isRunning || isPaused) return;
+    if ((e.key === 'ArrowLeft' || e.key === 'a') && currentLane > 0) currentLane--;
+    if ((e.key === 'ArrowRight' || e.key === 'd') && currentLane < 2) currentLane++;
+    if (e.key === 'ArrowUp' || e.key === 'w') triggerJump();
+    if (e.key === 'ArrowDown' || e.key === 's') triggerSlide();
 });
+
+function triggerJump() {
+    if (!isJumping && !isSliding) {
+        isJumping = true;
+        jumpVelocity = 12;
+    }
+}
+
+function triggerSlide() {
+    if (!isSliding && !isJumping) {
+        isSliding = true;
+        slideTimer = 0.6; // Seconds
+    }
+}
+
+// --- Game Loop & Physics ---
+let clock = new THREE.Clock();
+
+function resetGame() {
+    // Clear elements
+    obstacles.forEach(o => scene.remove(o));
+    coins.forEach(c => scene.remove(c));
+    obstacles.length = 0;
+    coins.length = 0;
+
+    currentLane = 1;
+    hero.position.set(0, 0, 0);
+    speed = 16;
+    score = 0;
+    coinsCollected = 0;
+    
+    isRunning = true;
+    isPaused = false;
+    isGameOver = false;
+
+    document.getElementById("overlay").classList.add("hidden");
+}
+
+function gameOver() {
+    isRunning = false;
+    isGameOver = true;
+
+    document.getElementById("title").innerText = "💥 GAME OVER";
+    document.getElementById("message").innerText = "आप जंगल के खतरों से बच नहीं पाए!";
+    
+    const details = document.getElementById("score-details");
+    details.classList.remove("hidden");
+    details.innerHTML = `कुल स्कोर: <b>${Math.floor(score)}</b><br>इकट्ठे किए गए सिक्के: <b>${coinsCollected}</b>`;
+    
+    document.getElementById("start-btn").innerText = "🔄 फिर से खेलें";
+    document.getElementById("overlay").classList.remove("hidden");
+}
+
+function update() {
+    const delta = clock.getDelta();
+
+    if (!isRunning || isPaused) return;
+
+    // Increase speed slowly
+    speed += delta * 0.15;
+    score += delta * speed;
+
+    // UI Updates
+    document.getElementById("score").innerText = Math.floor(score);
+    document.getElementById("coins").innerText = coinsCollected;
+    document.getElementById("speed").innerText = (speed / 16).toFixed(1) + "x";
+
+    // Smooth Lane Switching
+    targetX = lanes[currentLane];
+    hero.position.x += (targetX - hero.position.x) * 15 * delta;
+
+    // Jump Physics
+    if (isJumping) {
+        hero.position.y += jumpVelocity * delta;
+        jumpVelocity += gravity * delta;
+        if (hero.position.y <= 0) {
+            hero.position.y = 0;
+            isJumping = false;
+        }
+    }
+
+    // Slide Mechanics
+    if (isSliding) {
+        slideTimer -= delta;
+        bodyGroup.scale.set(1, 0.5, 1);
+        if (slideTimer <= 0) {
+            bodyGroup.scale.set(1, 1, 1);
+            isSliding = false;
+        }
+    }
+
+    // Character Running Animation
+    const animTime = clock.getElapsedTime() * speed * 0.8;
+    if (!isJumping && !isSliding) {
+        legL.rotation.x = Math.sin(animTime) * 0.8;
+        legR.rotation.x = -Math.sin(animTime) * 0.8;
+        armL.rotation.x = -Math.sin(animTime) * 0.8;
+        armR.rotation.x = Math.sin(animTime) * 0.8;
+    }
+
+    // Spawners Logic
+    spawnTimer += delta * speed;
+    if (spawnTimer > 22) {
+        spawnTimer = 0;
+        if (Math.random() > 0.3) spawnObstacle(120);
+        if (Math.random() > 0.4) spawnCoins(100);
+    }
+
+    // Move Environment Elements
+    sceneryObjects.forEach(obj => {
+        obj.position.z -= speed * delta;
+        if (obj.position.z < -20) obj.position.z += 400;
+    });
+
+    // Handle Obstacles & Collisions
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        obs.position.z -= speed * delta;
+
+        // Collision Check
+        if (Math.abs(obs.position.z - hero.position.z) < 0.8 && obs.userData.lane === currentLane) {
+            if (obs.userData.type === 'LOG' && hero.position.y < 0.8) {
+                gameOver();
+            } else if (obs.userData.type === 'HURDLE' && !isSliding) {
+                gameOver();
+            }
+        }
+
+        if (obs.position.z < -10) {
+            scene.remove(obs);
+            obstacles.splice(i, 1);
+        }
+    }
+
+    // Handle Coins
+    for (let i = coins.length - 1; i >= 0; i--) {
+        const coin = coins[i];
+        coin.position.z -= speed * delta;
+        coin.rotation.z += delta * 5;
+
+        // Pickup Check
+        if (Math.abs(coin.position.z - hero.position.z) < 1.0 && Math.abs(coin.position.x - hero.position.x) < 0.8 && hero.position.y < 1.5) {
+            coinsCollected++;
+            scene.remove(coin);
+            coins.splice(i, 1);
+        } else if (coin.position.z < -10) {
+            scene.remove(coin);
+            coins.splice(i, 1);
+        }
+    }
+
+    // Smooth Camera Follow
+    camera.position.x = hero.position.x * 0.3;
+    camera.position.y = 4.5 + hero.position.y * 0.2;
+    camera.position.z = hero.position.z - 7;
+    camera.lookAt(hero.position.x * 0.2, 1.8, hero.position.z + 10);
+}
+
+// --- Render Loop ---
+function animate() {
+    requestAnimationFrame(animate);
+    update();
+    renderer.render(scene, camera);
+}
+
+document.getElementById("start-btn").onclick = resetGame;
+
+// Handle Window Resizing
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
 </script>
 </body>
 </html>
